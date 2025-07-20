@@ -49,14 +49,14 @@ function App() {
   )[0] : null;
 
   // Get rate-limited connection
-  const getRateLimitedConn = () => {
+  const getRateLimitedConn = useCallback(() => {
     try {
       return getRateLimitedConnection();
     } catch (error) {
       console.warn('Rate limited connection not available, using fallback');
       return connection;
     }
-  };
+  }, [connection]);
 
   // Load game data with batching and rate limiting
   const loadGameData = useCallback(async (showLoading = true) => {
@@ -129,7 +129,7 @@ function App() {
     } finally {
       if (showLoading) setLoading(false);
     }
-  }, [publicKey, gameStatePDA, leaderboardPDA, playerEntryPDA, connection]);
+  }, [publicKey, gameStatePDA, leaderboardPDA, playerEntryPDA, getRateLimitedConn]);
 
   // Controlled polling instead of reactive useEffect
   const startPolling = useCallback(() => {

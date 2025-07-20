@@ -36,14 +36,12 @@ const wallets = [
   new SolflareWalletAdapter(),
 ];
 
-// Initialize rate-limited connection when App loads
-let rateLimitedConnection = null;
-
 // Lazy load the rate limited connection utilities
 const initializeRateLimitedConnection = async () => {
   try {
     const { createRateLimitedConnection } = await import('./utils/rpcUtils');
-    rateLimitedConnection = createRateLimitedConnection(primaryEndpoint, {
+    // Initialize the connection when the utility is imported
+    createRateLimitedConnection(primaryEndpoint, {
       maxRequestsPerSecond: 2, // Very conservative for free devnet
       cacheTTL: 20000, // 20 seconds cache
       commitment: 'confirmed'
