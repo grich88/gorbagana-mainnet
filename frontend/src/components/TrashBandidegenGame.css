@@ -1,0 +1,314 @@
+.trash-bandidegen-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  margin: 20px auto;
+  max-width: 500px;
+  position: relative;
+  overflow: hidden;
+}
+
+.trash-bandidegen-game::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)" /></svg>');
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.game-canvas {
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  box-shadow: 
+    0 0 30px rgba(78, 205, 196, 0.3),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 2;
+  position: relative;
+}
+
+.game-canvas:hover {
+  box-shadow: 
+    0 0 40px rgba(78, 205, 196, 0.5),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  transform: scale(1.02);
+}
+
+.game-canvas:focus {
+  outline: none;
+  box-shadow: 
+    0 0 50px rgba(255, 215, 0, 0.6),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .trash-bandidegen-game {
+    margin: 10px;
+    padding: 15px;
+    min-height: 60vh;
+  }
+  
+  .game-canvas {
+    max-width: 90vw;
+    height: auto;
+  }
+}
+
+/* Game UI animations */
+@keyframes scorePopup {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes powerUpGlow {
+  0% { box-shadow: 0 0 20px rgba(78, 205, 196, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(78, 205, 196, 0.8); }
+  100% { box-shadow: 0 0 20px rgba(78, 205, 196, 0.3); }
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.loading {
+  animation: pulse 1s infinite;
+}
+
+/* Power-up indicator animations */
+@keyframes slideInRight {
+  from { transform: translateX(100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100px); opacity: 0; }
+}
+
+/* Button hover effects */
+.game-button {
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.game-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.game-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Particle effects */
+@keyframes particleFloat {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-50px) rotate(360deg); opacity: 0; }
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  animation: particleFloat 1s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Screen flash effects */
+@keyframes flashRed {
+  0% { background-color: transparent; }
+  50% { background-color: rgba(255, 0, 0, 0.3); }
+  100% { background-color: transparent; }
+}
+
+@keyframes flashGold {
+  0% { background-color: transparent; }
+  50% { background-color: rgba(255, 215, 0, 0.3); }
+  100% { background-color: transparent; }
+}
+
+.damage-flash {
+  animation: flashRed 0.5s ease-out;
+}
+
+.powerup-flash {
+  animation: flashGold 0.5s ease-out;
+}
+
+/* High score celebration */
+@keyframes celebrate {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.1) rotate(-5deg); }
+  75% { transform: scale(1.1) rotate(5deg); }
+}
+
+.high-score {
+  animation: celebrate 2s ease-in-out infinite;
+}
+
+/* Touch controls for mobile */
+.touch-controls {
+  display: none;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  gap: 10px;
+}
+
+.touch-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.touch-button:active {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(0.9);
+}
+
+@media (max-width: 768px) {
+  .touch-controls {
+    display: flex;
+  }
+}
+
+/* Game progression indicators */
+.speed-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #FFD700;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.combo-indicator {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: bold;
+  animation: pulse 0.5s ease-in-out;
+}
+
+/* Achievement notifications */
+.achievement {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(45deg, #FFD700, #FF6B6B);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideInRight 0.5s ease-out, slideOutRight 0.5s ease-out 2.5s forwards;
+  z-index: 100;
+}
+
+/* Trail effects */
+.player-trail {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(78, 205, 196, 0.8);
+  border-radius: 50%;
+  animation: particleFloat 0.8s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Power-up effects */
+.powerup-active {
+  position: relative;
+}
+
+.powerup-active::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+  border-radius: inherit;
+  animation: powerUpGlow 1s ease-in-out infinite;
+  z-index: -1;
+}
+
+/* Responsive font scaling */
+@media (max-width: 480px) {
+  .trash-bandidegen-game {
+    font-size: 14px;
+  }
+}
+
+/* Performance optimizations */
+.game-canvas {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Accessibility */
+.game-canvas:focus-visible {
+  outline: 3px solid #FFD700;
+  outline-offset: 2px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .trash-bandidegen-game {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  }
+  
+  .game-canvas {
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+} 

@@ -7,6 +7,9 @@ import './App.css';
 // Import our rate-limited connection utilities
 import { getRateLimitedConnection, batchAccountRequests } from './utils/rpcUtils';
 
+// Import the game component
+import TrashBandidegenGame from './components/TrashBandidegenGame';
+
 // Your deployed program ID
 const PROGRAM_ID = new PublicKey('Ea5RPgxRQm4hNXB51Az9p2t8mkSXwMQKriXMiYhweWf6');
 
@@ -27,6 +30,12 @@ function App() {
   const [wagerAmount, setWagerAmount] = useState(0.1);
   const [score, setScore] = useState('');
   const [salt, setSalt] = useState('');
+  
+  // Game states
+  const [isPlayingGame, setIsPlayingGame] = useState(false);
+  const [gameScore, setGameScore] = useState(0);
+  const [gameSalt, setGameSalt] = useState('');
+  const [gameResults, setGameResults] = useState(null);
 
   // Polling control
   const pollingIntervalRef = useRef(null);
@@ -177,6 +186,106 @@ function App() {
       rateLimitedConn.clearCache();
     }
     loadGameData(true);
+  };
+
+  // Game functions
+  const generateSalt = () => {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const startGame = async () => {
+    if (!publicKey || !gameState) return;
+    
+    try {
+      setLoading(true);
+      setStatus('Starting game...');
+      
+      // Generate a new salt for this game session
+      const newSalt = generateSalt();
+      setGameSalt(newSalt);
+      setSalt(newSalt); // Also set the form salt for manual entry
+      
+      // Enter contest if not already entered
+      if (!playerEntry) {
+        await enterContest();
+      }
+      
+      // Start the game
+      setIsPlayingGame(true);
+      setGameScore(0);
+      setGameResults(null);
+      setStatus('🎮 Game started! Good luck!');
+      
+    } catch (error) {
+      console.error('Error starting game:', error);
+      setStatus('❌ Error starting game: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGameScoreUpdate = (newScore) => {
+    setGameScore(newScore);
+  };
+
+  const handleGameEnd = async (results) => {
+    setIsPlayingGame(false);
+    setGameResults(results);
+    
+    try {
+      setLoading(true);
+      setStatus('Submitting your score...');
+      
+      // Automatically submit the score using the game's salt
+      await submitGameScore(results.score, gameSalt);
+      
+      setStatus(`🎉 Game completed! Score: ${results.score.toLocaleString()} points`);
+      
+    } catch (error) {
+      console.error('Error submitting game score:', error);
+      setStatus('❌ Error submitting score: ' + error.message);
+      
+      // Allow manual score entry as fallback
+      setScore(results.score.toString());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitGameScore = async (gameScore, gameSalt) => {
+    if (!publicKey || !playerEntry) return;
+    
+    try {
+      const instruction = new TransactionInstruction({
+        keys: [
+          { pubkey: playerEntryPDA, isSigner: false, isWritable: true },
+          { pubkey: leaderboardPDA, isSigner: false, isWritable: true },
+          { pubkey: publicKey, isSigner: true, isWritable: false },
+        ],
+        programId: PROGRAM_ID,
+        data: Buffer.concat([
+          Buffer.from([2]), // Submit score instruction
+          Buffer.from(gameScore.toString().padStart(8, '0')), // Score as 8-byte number
+          Buffer.from(gameSalt, 'hex') // Salt as 32-byte hex
+        ])
+      });
+
+      const transaction = new Transaction().add(instruction);
+      const signature = await sendTransaction(transaction, connection);
+      
+      console.log('Score submitted:', signature);
+      
+      // Wait a moment then refresh data
+      setTimeout(() => refreshData(), 2000);
+      
+      return signature;
+      
+    } catch (error) {
+      console.error('Error submitting game score:', error);
+      throw error;
+    }
   };
 
   // Manual polling controls
@@ -367,6 +476,88 @@ function App() {
           </div>
         </div>
 
+        {/* Game Section */}
+        {publicKey && gameState && (
+          <div className="game-section">
+            <h3>🎮 Trash Bandidegen Game</h3>
+            
+            {!isPlayingGame && !gameResults && (
+              <div className="game-start">
+                <p>Ready to play? Start your endless runner adventure!</p>
+                <div className="game-info">
+                  <p>🏃‍♂️ <strong>How to Play:</strong></p>
+                  <ul>
+                    <li>• Use arrow keys or WASD to move between lanes</li>
+                    <li>• Space/W/↑ to jump over obstacles</li>
+                    <li>• S/↓ to slide under barriers</li>
+                    <li>• X/Shift for spin attack to destroy obstacles</li>
+                    <li>• Collect trash coins for points</li>
+                    <li>• Grab power-ups for special abilities</li>
+                  </ul>
+                </div>
+                <button 
+                  onClick={startGame}
+                  disabled={loading}
+                  className="action-button play-game"
+                  style={{ 
+                    fontSize: '18px', 
+                    padding: '15px 30px',
+                    background: 'linear-gradient(45deg, #FF6B6B, #4ECDC4)',
+                    border: 'none',
+                    borderRadius: '10px',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    marginTop: '10px'
+                  }}
+                >
+                  🎮 Start Game
+                </button>
+              </div>
+            )}
+            
+            {isPlayingGame && (
+              <div className="game-playing">
+                <p style={{ textAlign: 'center', marginBottom: '10px' }}>
+                  🎯 Current Score: <strong>{gameScore.toLocaleString()}</strong>
+                </p>
+                <TrashBandidegenGame 
+                  onGameEnd={handleGameEnd}
+                  onScoreUpdate={handleGameScoreUpdate}
+                />
+              </div>
+            )}
+            
+            {gameResults && !isPlayingGame && (
+              <div className="game-results">
+                <h4>🎉 Game Complete!</h4>
+                <div className="results-stats">
+                  <p>📊 <strong>Final Score:</strong> {gameResults.score.toLocaleString()} points</p>
+                  <p>📏 <strong>Distance:</strong> {gameResults.distance}m</p>
+                  <p>⚡ <strong>Max Speed:</strong> {gameResults.maxSpeed.toFixed(1)}x</p>
+                </div>
+                <button 
+                  onClick={startGame}
+                  disabled={loading}
+                  className="action-button play-again"
+                  style={{ 
+                    marginTop: '15px',
+                    background: 'linear-gradient(45deg, #4ECDC4, #45B7D1)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    padding: '10px 20px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🔄 Play Again
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Game Controls */}
         {publicKey && (
           <div className="game-controls">
@@ -386,7 +577,7 @@ function App() {
             )}
 
             {/* Enter Contest */}
-            {gameState && !playerEntry && (
+            {gameState && !playerEntry && !isPlayingGame && (
               <div className="control-section">
                 <h3>🏁 Enter Contest</h3>
                 <div className="input-group">
@@ -409,10 +600,13 @@ function App() {
               </div>
             )}
 
-            {/* Submit Score */}
-            {gameState && (
+            {/* Manual Score Submit (Fallback) */}
+            {gameState && !isPlayingGame && (
               <div className="control-section">
-                <h3>📊 Submit Score</h3>
+                <h3>📊 Manual Score Entry</h3>
+                <p style={{ fontSize: '0.9rem', opacity: '0.8' }}>
+                  Use this if automatic submission failed
+                </p>
                 <div className="input-group">
                   <label>Your Score:</label>
                   <input
@@ -429,6 +623,7 @@ function App() {
                     value={salt}
                     onChange={(e) => setSalt(e.target.value)}
                     placeholder="Salt for score verification"
+                    style={{ fontSize: '0.8rem' }}
                   />
                 </div>
                 <button 

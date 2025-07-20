@@ -343,4 +343,143 @@
     grid-column: 2;
     justify-self: end;
   }
+}
+
+/* Game Section Styles */
+.game-section {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.game-section h3 {
+  color: white;
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.game-start {
+  color: white;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.game-info {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.game-info ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.game-info li {
+  padding: 5px 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.game-playing {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 500px;
+}
+
+.game-playing p {
+  color: white;
+  font-size: 18px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.game-results {
+  background: linear-gradient(135deg, #4ECDC4, #44A08D);
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px auto;
+  max-width: 400px;
+  color: white;
+}
+
+.game-results h4 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.results-stats {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+.results-stats p {
+  margin: 8px 0;
+  font-size: 16px;
+  text-align: left;
+}
+
+.action-button.play-game {
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4) !important;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.action-button.play-game:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.action-button.play-again {
+  transition: all 0.3s ease;
+}
+
+.action-button.play-again:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile responsiveness for game section */
+@media (max-width: 768px) {
+  .game-section {
+    margin: 10px 0;
+    padding: 15px;
+  }
+  
+  .game-section h3 {
+    font-size: 24px;
+  }
+  
+  .game-info {
+    padding: 15px;
+  }
+  
+  .game-playing {
+    padding: 15px;
+    margin: 15px auto;
+  }
+  
+  .results-stats {
+    padding: 12px;
+  }
+  
+  .action-button.play-game {
+    font-size: 16px !important;
+    padding: 12px 25px !important;
+  }
 } 
