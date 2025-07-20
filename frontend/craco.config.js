@@ -33,6 +33,17 @@ module.exports = {
         'process/browser': require.resolve('process/browser'),
       };
       
+      // Fix for "fullySpecified" ESM resolution errors
+      webpackConfig.module.rules = [
+        ...webpackConfig.module.rules,
+        {
+          test: /\.m?js$/,
+          resolve: {
+            fullySpecified: false,
+          },
+        },
+      ];
+      
       return webpackConfig;
     },
   },
