@@ -11,6 +11,7 @@ module.exports = {
         util: require.resolve('util'),
         url: require.resolve('url'),
         assert: require.resolve('assert'),
+        process: require.resolve('process/browser'),
       };
       
       webpackConfig.plugins = [
@@ -20,6 +21,17 @@ module.exports = {
           process: 'process/browser',
         }),
       ];
+      
+      // Fix for module resolution in newer packages
+      webpackConfig.resolve.extensionAlias = {
+        '.js': ['.js', '.ts'],
+      };
+      
+      // Handle ESM module resolution
+      webpackConfig.resolve.alias = {
+        ...webpackConfig.resolve.alias,
+        'process/browser': require.resolve('process/browser'),
+      };
       
       return webpackConfig;
     },
