@@ -1,294 +1,188 @@
-# 🎮 GorbaDome Arcade Platform
+# 🎮 Gorbadome - Complete Solana Contest Platform
 
-**Web3 Gaming on Gorbagana Chain - Trash Bandidegen & More**
+A comprehensive blockchain-based contest platform built on Solana featuring secure score submission, leaderboards, and prize distribution.
 
-A decentralized arcade platform built on the Gorbagana Chain (Solana fork) featuring endless runner games, blockchain wagering, NFT integration, and a thriving community economy.
+## 🌟 Overview
 
-## 🚀 Features
+Gorbadome is a production-ready Web3 gaming platform that combines the excitement of competitive gaming with blockchain technology. Players can enter contests with SOL wagers, submit scores securely using cryptographic commit-reveal schemes, and compete for prizes distributed automatically through smart contracts.
 
-### Phase 1: Core Game (✅ Complete)
-- **Trash Bandidegen**: Endless runner with Crash Bandicoot-style mechanics
-- **Meme-Infused Theme**: Crypto humor, trash world aesthetics
-- **Core Gameplay**: Jump, slide, spin attack, collect trash coins
-- **Progressive Difficulty**: Speed increases, obstacle frequency scaling
-- **Local Leaderboards**: High score tracking and persistence
-- **Polished UI/UX**: Modern interface with game state management
+## ✨ Features
 
-### Phase 2: Blockchain Integration (🔄 In Progress)
-- **$GOR Wagering**: Stake tokens to compete for prizes
-- **Smart Contracts**: Rust/Anchor programs on Gorganus Chain
-- **Commit-Reveal Security**: Anti-cheat score verification
-- **Trash Pass NFTs**: Membership benefits and status symbols
-- **Continue Insurance**: Microtransactions for second chances
-- **Wallet Integration**: Backpack, Phantom, and other Solana wallets
-- **On-Chain Leaderboards**: Transparent, verifiable competition
+### 🏗️ Core Functionality
+- **Contest Management**: Automated contest cycles with configurable duration
+- **Secure Entry System**: SOL-based wagers with commit-reveal score submission
+- **Real-time Leaderboard**: Top 3 player tracking with score and wager data
+- **Prize Distribution**: Automated 50/30/20% prize distribution to winners
+- **Anti-Cheat Protection**: Cryptographic commit-reveal scheme prevents score manipulation
 
-### Phase 3: Arcade Expansion (📋 Planned)
-- **Multiple Games**: Additional mini-games in the arcade
-- **Unified Economy**: Shared tokenomics across games
-- **Community Features**: Social sharing, tournaments
-- **Mobile Support**: Cross-platform deployment
-- **Marketplace**: NFT trading and cosmetics
+### 🎨 Frontend Features
+- **Modern UI**: Beautiful gradient design with glass morphism effects
+- **Wallet Integration**: Support for Phantom, Solflare, and other Solana wallets
+- **Responsive Design**: Works seamlessly on desktop and mobile
+- **Real-time Updates**: Live contest state and leaderboard updates
+- **Transaction Feedback**: Clear status messages for all operations
 
-## 🏗️ Architecture
+### 🔧 Technical Features
+- **Solana Program**: Rust-based smart contract using Anchor framework
+- **React Frontend**: Modern web interface with wallet adapter integration
+- **Automated Deployment**: Scripts for easy program and frontend deployment
+- **Comprehensive Testing**: Full game flow tests and unit tests
 
-### Smart Contracts (Rust/Anchor)
+## 📁 Project Structure
+
 ```
-gorbadome-contracts/
-├── gorbadome/
-│   ├── programs/gorbadome/src/lib.rs    # Main game contract
-│   ├── tests/gorbadome.ts               # Contract tests
-│   ├── scripts/deploy.ts                # Deployment script
-│   └── Anchor.toml                      # Anchor configuration
-```
-
-**Key Contract Features:**
-- `initialize_game()`: Setup game state and parameters
-- `enter_run()`: Submit wager and create player entry
-- `submit_score()`: Commit-reveal score submission
-- `end_contest()`: Distribute prizes to winners
-- `buy_continue_insurance()`: Microtransaction for continues
-- `mint_trash_pass()`: NFT membership minting
-
-### Unity Game Client
-```
-gorbadome-game/
-├── Assets/Scripts/
-│   ├── Gameplay/           # Core game mechanics
-│   │   ├── PlayerController.cs
-│   │   ├── GameManager.cs
-│   │   ├── LevelGenerator.cs
-│   │   └── Obstacle.cs
-│   ├── Blockchain/         # Web3 integration
-│   │   └── BlockchainManager.cs
-│   ├── UI/                 # User interface
-│   │   └── UIManager.cs
-│   └── Config/             # Game configuration
-│       └── GameConfig.cs
+gorbagana-mainnet/
+├── gorbadome-contracts/         # Solana program
+│   └── gorbadome/
+│       ├── programs/gorbadome/  # Rust program source
+│       ├── tests/               # Anchor tests
+│       └── target/deploy/       # Build artifacts
+├── frontend/                    # React web interface
+│   ├── src/                     # React components
+│   ├── public/                  # Static assets
+│   └── build/                   # Production build
+├── test_client/                 # Test scripts
+│   ├── simple_test.js          # Basic connectivity test
+│   ├── comprehensive_test.js   # Function testing
+│   └── full_game_test.js       # Complete game flow test
+├── deploy.sh                   # Deployment script
+└── README.md                   # This file
 ```
 
-## 🛠️ Development Setup
+## 🚀 Quick Start
 
 ### Prerequisites
-- **Unity 2022.3 LTS** or later
-- **Node.js 16+** and npm/yarn
-- **Rust** and Cargo
-- **Anchor CLI** (`cargo install --git https://github.com/coral-xyz/anchor avm --locked --force`)
-- **Solana CLI** tools
+- [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools)
+- [Anchor Framework](https://book.anchor-lang.com/getting_started/installation.html)
+- [Node.js](https://nodejs.org/) (v18+)
+- [Git](https://git-scm.com/)
 
-### Quick Start
+### 1. Clone and Setup
+```bash
+git clone https://github.com/grich88/gorbagana-mainnet.git
+cd gorbagana-mainnet
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/gorbagana/gorbadome-arcade.git
-   cd gorbadome-arcade
-   ```
+### 2. Deploy Program
+```bash
+# Option A: Use automated script (Linux/WSL)
+./deploy.sh
 
-2. **Setup Unity Project**
-   ```bash
-   # Open gorbadome-game/ in Unity
-   # Install required packages via Package Manager
-   ```
+# Option B: Manual deployment
+cd gorbadome-contracts/gorbadome
+anchor build
+solana program deploy target/deploy/gorbadome.so
+```
 
-3. **Setup Smart Contracts**
-   ```bash
-   cd gorbadome-contracts/gorbadome
-   npm install
-   anchor build
-   ```
+### 3. Setup Frontend
+```bash
+cd frontend
+npm install
+npm start
+```
 
-4. **Deploy to Gorganus Devnet**
-   ```bash
-   # Configure Anchor.toml for Gorganus
-   anchor deploy --provider.cluster gorganus-devnet
-   ```
+### 4. Test the System
+```bash
+cd test_client
+export ANCHOR_WALLET=~/.config/solana/id.json
+node full_game_test.js
+```
 
-5. **Run Tests**
-   ```bash
-   anchor test
-   ```
+## 🎯 How It Works
 
-6. **Build WebGL Game**
-   ```bash
-   npm run build:webgl
-   ```
+### Game Flow
+1. **Initialization**: Authority initializes the game state and leaderboard
+2. **Contest Entry**: Players enter with SOL wagers and commit score hashes
+3. **Score Submission**: Players reveal scores with salt for verification
+4. **Leaderboard Update**: Scores are ranked and top 3 players tracked
+5. **Contest End**: Authority ends contest and distributes prizes
 
-## 🎯 Game Mechanics
+### Security Model
+- **Commit-Reveal**: Prevents score manipulation by requiring cryptographic commitments
+- **Authority Control**: Only designated authority can manage contests
+- **PDA Security**: Program Derived Addresses ensure account security
+- **Wager Escrow**: Player funds held securely until prize distribution
 
-### Trash Bandidegen Core Loop
-1. **Movement**: Automatic forward progression with lane switching
-2. **Actions**: Jump (space/up), Slide (down), Spin Attack (X/shift)
-3. **Collection**: Gather trash coins for points and bonuses
-4. **Obstacles**: Dodge or destroy obstacles to survive
-5. **Scoring**: Distance + coins + bonuses + difficulty multiplier
+### Prize Distribution
+- **1st Place**: 50% of total prize pool
+- **2nd Place**: 30% of total prize pool
+- **3rd Place**: 20% of total prize pool
 
-### Blockchain Integration Flow
-1. **Connect Wallet**: Backpack, Phantom, or other Solana wallets
-2. **Submit Wager**: Stake $GOR tokens for competition entry
-3. **Play Game**: Standard gameplay with blockchain tracking
-4. **Submit Score**: Commit-reveal scheme for fair verification
-5. **Claim Rewards**: Automatic prize distribution to winners
+## 🚢 Deployment on Render
 
-### NFT & Tokenomics
-- **$GOR**: Native token for wagering and transactions
-- **Trash Pass**: Membership NFT with exclusive benefits
-- **Cosmetic NFTs**: Earn-to-mint collectibles from gameplay
-- **House Fees**: 5% of wagers fund platform development
+### Frontend Deployment
+1. **Connect Repository**: Link your GitHub repo to Render
+2. **Configure Build**: 
+   - Build command: `cd frontend && npm install && npm run build`
+   - Publish directory: `frontend/build`
+3. **Environment Variables**: Set any needed env vars
+4. **Deploy**: Render will automatically build and deploy
+
+### Backend/API (if needed)
+1. **Service Type**: Web Service
+2. **Build Command**: `cd backend && npm install`
+3. **Start Command**: `cd backend && npm start`
 
 ## 🔧 Configuration
 
-### Game Settings (GameConfig.cs)
-```csharp
-[Header("Player Movement")]
-public float baseForwardSpeed = 10f;
-public float jumpForce = 12f;
-public float slideTime = 1f;
-
-[Header("Scoring System")]
-public int trashCoinValue = 10;
-public int obstacleDestroyBonus = 50;
-public int perfectRunBonus = 100;
-
-[Header("Blockchain Settings")]
-public float minWagerAmount = 1f;
-public float maxWagerAmount = 100f;
-public float houseFeePercentage = 0.05f;
+### Network Settings
+Configure in `frontend/src/index.js`:
+```javascript
+const network = WalletAdapterNetwork.Devnet; // or Mainnet
 ```
 
-### Blockchain Settings (BlockchainManager.cs)
-```csharp
-[Header("Blockchain Settings")]
-public string gorganusRPCUrl = "https://rpc.gorganus.com";
-public string programId = "5Qewhf89dYVr16QF9hW34PvTUDmvxHpZWHE3y19crbss";
-public bool useDevnet = true;
-```
-
-## 🚀 Deployment
-
-### Smart Contract Deployment
-```bash
-# Deploy to Gorganus Devnet
-anchor deploy --provider.cluster gorganus-devnet
-
-# Deploy to Gorganus Mainnet (when available)
-anchor deploy --provider.cluster gorganus-mainnet
-```
-
-### Game Deployment
-```bash
-# Build WebGL version
-npm run build:webgl
-
-# Deploy to hosting (GitHub Pages, Netlify, etc.)
-npm run deploy:web
-```
-
-### xNFT Deployment
-```bash
-# Create xNFT manifest
-# Deploy to Backpack xNFT store
+### Program ID
+Update in `frontend/src/App.js`:
+```javascript
+const PROGRAM_ID = new PublicKey('YOUR_PROGRAM_ID');
 ```
 
 ## 🧪 Testing
 
-### Smart Contract Tests
+### Unit Tests
 ```bash
 cd gorbadome-contracts/gorbadome
 anchor test
 ```
 
-### Game Tests
-- Unity Play Mode testing
-- Manual gameplay testing
-- Performance testing (60fps target)
-
 ### Integration Tests
-- Wallet connection flow
-- Transaction submission
-- Score verification
-- Prize distribution
+```bash
+cd test_client
+node comprehensive_test.js  # Test all functions
+node full_game_test.js      # Complete game simulation
+```
 
-## 📊 Performance Targets
+## 📊 Monitoring
 
-- **Frame Rate**: 60 FPS on mid-range hardware
-- **Transaction Speed**: <2 seconds for blockchain operations
-- **Load Times**: <5 seconds for game initialization
-- **Memory Usage**: <500MB for WebGL build
+### Program Logs
+```bash
+solana logs <PROGRAM_ID>
+```
 
-## 🔒 Security Features
-
-- **Commit-Reveal Scheme**: Prevents score manipulation
-- **Smart Contract Audits**: Formal verification of on-chain logic
-- **Input Validation**: Client and server-side validation
-- **Rate Limiting**: Prevents spam and abuse
-- **Secure Key Management**: Proper wallet integration
-
-## 🌟 Community & Ecosystem
-
-### Gorbagana Chain Integration
-- **Native Token**: $GOR for all transactions
-- **Low Fees**: <$0.001 per transaction
-- **Fast Finality**: ~400-600ms confirmation times
-- **High Throughput**: 65,000+ TPS capacity
-
-### Backpack xNFT Support
-- **Seamless Integration**: Direct wallet access
-- **Enhanced UX**: Native wallet experience
-- **Cross-Platform**: Web and in-wallet play
-
-## 📈 Roadmap
-
-### Phase 1 (✅ Complete)
-- [x] Core game mechanics
-- [x] Basic UI and menus
-- [x] Local leaderboards
-- [x] Game configuration system
-
-### Phase 2 (🔄 In Progress)
-- [x] Smart contract development
-- [x] Blockchain integration framework
-- [ ] Wallet connection implementation
-- [ ] Real transaction handling
-- [ ] NFT minting system
-- [ ] Beta testing and refinement
-
-### Phase 3 (📋 Planned)
-- [ ] Additional mini-games
-- [ ] Advanced tokenomics
-- [ ] Community features
-- [ ] Mobile deployment
-- [ ] Marketplace integration
+### Transaction Explorer
+- Devnet: `https://explorer.solana.com/address/<PROGRAM_ID>?cluster=devnet`
+- Mainnet: `https://explorer.solana.com/address/<PROGRAM_ID>`
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-### Development Areas
-- **Game Mechanics**: New features and improvements
-- **Smart Contracts**: Security and optimization
-- **UI/UX**: Interface enhancements
-- **Testing**: Automated and manual testing
-- **Documentation**: Code and user documentation
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-- **Discord**: [Gorbagana Community](https://discord.gg/gorbagana)
-- **Twitter**: [@GorbaganaChain](https://twitter.com/GorbaganaChain)
-- **Documentation**: [docs.gorbadome.com](https://docs.gorbadome.com)
-- **Issues**: [GitHub Issues](https://github.com/gorbagana/gorbadome-arcade/issues)
+This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
-- **Gorbagana Community**: For the amazing meme ecosystem
-- **Solana Foundation**: For the underlying blockchain technology
-- **Anchor Framework**: For smart contract development tools
-- **Unity Technologies**: For the game engine and WebGL support
-- **Backpack Team**: For xNFT platform and wallet integration
+- [Solana Labs](https://solana.com/) for the blockchain platform
+- [Anchor Protocol](https://anchor-lang.com/) for the development framework
+- [Solana Wallet Adapter](https://github.com/solana-labs/wallet-adapter) for wallet integration
 
 ---
 
-**🎮 Ready to become a Trash Bandidegen? Connect your wallet and start running! 🏃‍♂️💨** 
+**Built with ❤️ for the Solana ecosystem**
+
+🎮 **Ready to compete? Connect your wallet and start playing!**
