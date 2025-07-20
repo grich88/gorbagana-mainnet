@@ -1,7 +1,7 @@
 services:
   - type: web
     name: gorbadome-frontend
-    env: node
+    env: static
     region: oregon
     plan: free
     buildCommand: cd frontend && npm install && npm run build
