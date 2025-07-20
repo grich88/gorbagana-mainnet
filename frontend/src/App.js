@@ -57,6 +57,15 @@ function App() {
     PROGRAM_ID
   )[0] : null;
 
+  // Debug PDA addresses
+  console.log('🔑 PDA Addresses:', {
+    programId: PROGRAM_ID.toString(),
+    gameStatePDA: gameStatePDA.toString(),
+    leaderboardPDA: leaderboardPDA.toString(),
+    playerEntryPDA: playerEntryPDA?.toString(),
+    connectedWallet: publicKey?.toString()
+  });
+
   // Get rate-limited connection
   const getRateLimitedConn = useCallback(() => {
     try {
@@ -94,31 +103,56 @@ function App() {
       const leaderboardResult = results.find(r => r.publicKey.equals(leaderboardPDA));
       const playerEntryResult = publicKey ? results.find(r => r.publicKey.equals(playerEntryPDA)) : null;
 
-      // Update game state
+      // Update game state with debugging
+      console.log('🔍 Game State Debug:', {
+        gameStateResult,
+        hasAccountInfo: !!gameStateResult?.accountInfo,
+        accountData: gameStateResult?.accountInfo?.data,
+        dataLength: gameStateResult?.accountInfo?.data?.length
+      });
+      
       if (gameStateResult?.accountInfo) {
         setGameState({ exists: true, data: gameStateResult.accountInfo.data });
-        setStatus('Game initialized');
+        setStatus('✅ Game initialized');
+        console.log('✅ Game state set to initialized');
       } else {
         setGameState(null);
-        setStatus('Game not initialized');
+        setStatus('❌ Game not initialized - Click "Initialize Game" button');
+        console.log('❌ Game state set to not initialized');
       }
       
       // Update leaderboard (simplified parsing for demo)
+      console.log('🏆 Leaderboard Debug:', {
+        leaderboardResult,
+        hasAccountInfo: !!leaderboardResult?.accountInfo,
+        dataLength: leaderboardResult?.accountInfo?.data?.length
+      });
+      
       if (leaderboardResult?.accountInfo && leaderboardResult.accountInfo.data.length > 8) {
         setLeaderboard([
           { player: 'Player 1', score: 1500, wager: 0.1 },
           { player: 'Player 2', score: 1200, wager: 0.2 },
           { player: 'Player 3', score: 900, wager: 0.15 }
         ]);
+        console.log('🏆 Leaderboard set with mock data');
       } else {
         setLeaderboard([]);
+        console.log('🏆 Leaderboard set to empty');
       }
       
       // Update player entry
+      console.log('👤 Player Entry Debug:', {
+        playerEntryResult,
+        hasAccountInfo: !!playerEntryResult?.accountInfo,
+        publicKey: publicKey?.toString()
+      });
+      
       if (playerEntryResult?.accountInfo) {
         setPlayerEntry({ exists: true, data: playerEntryResult.accountInfo.data });
+        console.log('👤 Player entry found');
       } else {
         setPlayerEntry(null);
+        console.log('👤 No player entry found');
       }
 
       setLastUpdateTime(new Date().toLocaleTimeString());
