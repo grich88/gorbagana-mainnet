@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { PublicKey, SystemProgram, Transaction, TransactionInstruction } from '@solana/web3.js';
 import './App.css';
+
+// Import our rate-limited connection utilities
+import { getRateLimitedConnection, batchAccountRequests } from './utils/rpcUtils';
 
 // Your deployed program ID
 const PROGRAM_ID = new PublicKey('Ea5RPgxRQm4hNXB51Az9p2t8mkSXwMQKriXMiYhweWf6');
@@ -17,11 +20,17 @@ function App() {
   const [playerEntry, setPlayerEntry] = useState(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
+  const [lastUpdateTime, setLastUpdateTime] = useState(null);
+  const [cacheStats, setCacheStats] = useState({ size: 0, keys: [] });
   
   // Form states
   const [wagerAmount, setWagerAmount] = useState(0.1);
   const [score, setScore] = useState('');
   const [salt, setSalt] = useState('');
+
+  // Polling control
+  const pollingIntervalRef = useRef(null);
+  const [isPolling, setIsPolling] = useState(false);
 
   // Generate PDAs
   const gameStatePDA = PublicKey.findProgramAddressSync(
@@ -39,55 +48,134 @@ function App() {
     PROGRAM_ID
   )[0] : null;
 
-  // Load game data
-  const loadGameData = useCallback(async () => {
-    if (!connection) return;
+  // Get rate-limited connection
+  const getRateLimitedConn = () => {
+    try {
+      return getRateLimitedConnection();
+    } catch (error) {
+      console.warn('Rate limited connection not available, using fallback');
+      return connection;
+    }
+  };
+
+  // Load game data with batching and rate limiting
+  const loadGameData = useCallback(async (showLoading = true) => {
+    const rateLimitedConn = getRateLimitedConn();
     
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
+      setStatus('Loading game data...');
       
-      // Load game state
-      const gameStateAccount = await connection.getAccountInfo(gameStatePDA);
-      if (gameStateAccount) {
-        setGameState({ exists: true, data: gameStateAccount.data });
+      // Prepare batch requests
+      const requests = [
+        { publicKey: gameStatePDA, name: 'gameState' },
+        { publicKey: leaderboardPDA, name: 'leaderboard' }
+      ];
+
+      // Add player entry if wallet is connected
+      if (publicKey && playerEntryPDA) {
+        requests.push({ publicKey: playerEntryPDA, name: 'playerEntry' });
+      }
+
+      // Batch the account info requests
+      const results = await batchAccountRequests(rateLimitedConn, requests);
+      
+      // Process results
+      const gameStateResult = results.find(r => r.publicKey.equals(gameStatePDA));
+      const leaderboardResult = results.find(r => r.publicKey.equals(leaderboardPDA));
+      const playerEntryResult = publicKey ? results.find(r => r.publicKey.equals(playerEntryPDA)) : null;
+
+      // Update game state
+      if (gameStateResult?.accountInfo) {
+        setGameState({ exists: true, data: gameStateResult.accountInfo.data });
         setStatus('Game initialized');
       } else {
         setGameState(null);
         setStatus('Game not initialized');
       }
       
-      // Load leaderboard
-      const leaderboardAccount = await connection.getAccountInfo(leaderboardPDA);
-      if (leaderboardAccount && leaderboardAccount.data.length > 8) {
-        // Parse leaderboard (simplified - in real app you'd properly deserialize)
+      // Update leaderboard (simplified parsing for demo)
+      if (leaderboardResult?.accountInfo && leaderboardResult.accountInfo.data.length > 8) {
         setLeaderboard([
           { player: 'Player 1', score: 1500, wager: 0.1 },
           { player: 'Player 2', score: 1200, wager: 0.2 },
           { player: 'Player 3', score: 900, wager: 0.15 }
         ]);
+      } else {
+        setLeaderboard([]);
       }
       
-      // Load player entry
-      if (publicKey && playerEntryPDA) {
-        const playerEntryAccount = await connection.getAccountInfo(playerEntryPDA);
-        if (playerEntryAccount) {
-          setPlayerEntry({ exists: true, data: playerEntryAccount.data });
-        } else {
-          setPlayerEntry(null);
-        }
+      // Update player entry
+      if (playerEntryResult?.accountInfo) {
+        setPlayerEntry({ exists: true, data: playerEntryResult.accountInfo.data });
+      } else {
+        setPlayerEntry(null);
+      }
+
+      setLastUpdateTime(new Date().toLocaleTimeString());
+      
+      // Update cache stats
+      if (rateLimitedConn.getCacheStats) {
+        setCacheStats(rateLimitedConn.getCacheStats());
       }
       
     } catch (error) {
       console.error('Error loading game data:', error);
-      setStatus('Error loading game data');
+      if (error.message.includes('Rate limit exceeded')) {
+        setStatus('⚠️ Rate limit exceeded. Slowing down requests...');
+      } else {
+        setStatus('❌ Error loading game data: ' + error.message);
+      }
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
-  }, [connection, publicKey, gameStatePDA, leaderboardPDA, playerEntryPDA]);
+  }, [publicKey, gameStatePDA, leaderboardPDA, playerEntryPDA, connection]);
 
-  useEffect(() => {
-    loadGameData();
+  // Controlled polling instead of reactive useEffect
+  const startPolling = useCallback(() => {
+    if (pollingIntervalRef.current) return; // Already polling
+    
+    setIsPolling(true);
+    console.log('Starting controlled polling every 30 seconds');
+    
+    // Initial load
+    loadGameData(true);
+    
+    // Set up interval
+    pollingIntervalRef.current = setInterval(() => {
+      loadGameData(false); // Background updates without loading spinner
+    }, 30000); // Poll every 30 seconds
   }, [loadGameData]);
+
+  const stopPolling = useCallback(() => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+      setIsPolling(false);
+      console.log('Stopped polling');
+    }
+  }, []);
+
+  // Start polling when component mounts and wallet connects
+  useEffect(() => {
+    if (publicKey) {
+      startPolling();
+    } else {
+      stopPolling();
+    }
+
+    // Cleanup on unmount
+    return () => stopPolling();
+  }, [publicKey, startPolling, stopPolling]);
+
+  // Manual refresh function
+  const refreshData = () => {
+    const rateLimitedConn = getRateLimitedConn();
+    if (rateLimitedConn.clearCache) {
+      rateLimitedConn.clearCache();
+    }
+    loadGameData(true);
+  };
 
   // Initialize game
   const initializeGame = async () => {
@@ -111,12 +199,14 @@ function App() {
       const transaction = new Transaction().add(instruction);
       const signature = await sendTransaction(transaction, connection);
       
-      setStatus('Game initialized! Transaction: ' + signature);
-      await loadGameData();
+      setStatus('✅ Game initialized! Transaction: ' + signature);
+      
+      // Wait a moment then refresh data
+      setTimeout(() => refreshData(), 2000);
       
     } catch (error) {
       console.error('Error initializing game:', error);
-      setStatus('Error initializing game: ' + error.message);
+      setStatus('❌ Error initializing game: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -155,12 +245,14 @@ function App() {
       const transaction = new Transaction().add(instruction);
       const signature = await sendTransaction(transaction, connection);
       
-      setStatus('Contest entered! Transaction: ' + signature);
-      await loadGameData();
+      setStatus('✅ Contest entered! Transaction: ' + signature);
+      
+      // Wait a moment then refresh data
+      setTimeout(() => refreshData(), 2000);
       
     } catch (error) {
       console.error('Error entering contest:', error);
-      setStatus('Error entering contest: ' + error.message);
+      setStatus('❌ Error entering contest: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -193,12 +285,14 @@ function App() {
       const transaction = new Transaction().add(instruction);
       const signature = await sendTransaction(transaction, connection);
       
-      setStatus('Score submitted! Transaction: ' + signature);
-      await loadGameData();
+      setStatus('✅ Score submitted! Transaction: ' + signature);
+      
+      // Wait a moment then refresh data
+      setTimeout(() => refreshData(), 2000);
       
     } catch (error) {
       console.error('Error submitting score:', error);
-      setStatus('Error submitting score: ' + error.message);
+      setStatus('❌ Error submitting score: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -217,6 +311,22 @@ function App() {
         <div className="status-section">
           <h3>📊 Status</h3>
           <p className={loading ? 'loading' : ''}>{status || 'Ready'}</p>
+          {lastUpdateTime && (
+            <div style={{ fontSize: '0.9rem', opacity: 0.7, marginTop: '10px' }}>
+              Last updated: {lastUpdateTime}
+              {isPolling && ' • Auto-refresh: ON'}
+            </div>
+          )}
+          <div style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '5px' }}>
+            Cache: {cacheStats.size} items | 
+            <button 
+              onClick={refreshData} 
+              style={{ marginLeft: '10px', padding: '2px 8px', fontSize: '0.8rem' }}
+              disabled={loading}
+            >
+              🔄 Refresh
+            </button>
+          </div>
         </div>
 
         {/* Game Controls */}
@@ -262,7 +372,7 @@ function App() {
             )}
 
             {/* Submit Score */}
-            {playerEntry && (
+            {gameState && (
               <div className="control-section">
                 <h3>📊 Submit Score</h3>
                 <div className="input-group">
@@ -324,7 +434,7 @@ function App() {
             </div>
             <div className="info-item">
               <strong>Network:</strong>
-              <span>Devnet</span>
+              <span>Devnet (Rate Limited)</span>
             </div>
             <div className="info-item">
               <strong>Game State:</strong>
@@ -340,6 +450,12 @@ function App() {
                 </span>
               </div>
             )}
+            <div className="info-item">
+              <strong>Polling:</strong>
+              <span className={isPolling ? 'active' : 'inactive'}>
+                {isPolling ? '✅ Active (30s)' : '❌ Stopped'}
+              </span>
+            </div>
           </div>
         </div>
       </main>
