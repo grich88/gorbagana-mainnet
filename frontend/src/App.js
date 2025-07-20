@@ -131,42 +131,44 @@ function App() {
     }
   }, [publicKey, gameStatePDA, leaderboardPDA, playerEntryPDA, getRateLimitedConn]);
 
-  // Controlled polling instead of reactive useEffect
-  const startPolling = useCallback(() => {
-    if (pollingIntervalRef.current) return; // Already polling
-    
-    setIsPolling(true);
-    console.log('Starting controlled polling every 30 seconds');
-    
-    // Initial load
-    loadGameData(true);
-    
-    // Set up interval
-    pollingIntervalRef.current = setInterval(() => {
-      loadGameData(false); // Background updates without loading spinner
-    }, 30000); // Poll every 30 seconds
-  }, [loadGameData]);
+  // Controlled polling logic moved to useEffect and manual controls
 
-  const stopPolling = useCallback(() => {
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
-      setIsPolling(false);
-      console.log('Stopped polling');
-    }
-  }, []);
-
-  // Start polling when component mounts and wallet connects
+  // Start/stop polling based on wallet connection - fix dependency issue
   useEffect(() => {
     if (publicKey) {
-      startPolling();
+      // Only start if not already polling
+      if (!pollingIntervalRef.current) {
+        setIsPolling(true);
+        console.log('Starting controlled polling every 30 seconds');
+        
+        // Initial load
+        loadGameData(true);
+        
+        // Set up interval
+        pollingIntervalRef.current = setInterval(() => {
+          loadGameData(false); // Background updates without loading spinner
+        }, 30000); // Poll every 30 seconds
+      }
     } else {
-      stopPolling();
+      // Stop polling when wallet disconnects
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+        setIsPolling(false);
+        console.log('Stopped polling - wallet disconnected');
+      }
     }
 
     // Cleanup on unmount
-    return () => stopPolling();
-  }, [publicKey, startPolling, stopPolling]);
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+        setIsPolling(false);
+        console.log('Stopped polling - component unmount');
+      }
+    };
+  }, [publicKey]); // Only depend on publicKey, not the functions
 
   // Manual refresh function
   const refreshData = () => {
@@ -175,6 +177,29 @@ function App() {
       rateLimitedConn.clearCache();
     }
     loadGameData(true);
+  };
+
+  // Manual polling controls
+  const togglePolling = () => {
+    if (pollingIntervalRef.current) {
+      // Stop polling
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+      setIsPolling(false);
+      console.log('Manually stopped polling');
+    } else if (publicKey) {
+      // Start polling
+      setIsPolling(true);
+      console.log('Manually started controlled polling every 30 seconds');
+      
+      // Initial load
+      loadGameData(true);
+      
+      // Set up interval
+      pollingIntervalRef.current = setInterval(() => {
+        loadGameData(false); // Background updates without loading spinner
+      }, 30000); // Poll every 30 seconds
+    }
   };
 
   // Initialize game
@@ -326,6 +351,19 @@ function App() {
             >
               🔄 Refresh
             </button>
+            {publicKey && (
+              <button 
+                onClick={togglePolling} 
+                style={{ 
+                  marginLeft: '10px', 
+                  padding: '2px 8px', 
+                  fontSize: '0.8rem',
+                  backgroundColor: isPolling ? '#ff6b6b' : '#51cf66'
+                }}
+              >
+                {isPolling ? '⏸️ Stop Auto-refresh' : '▶️ Start Auto-refresh'}
+              </button>
+            )}
           </div>
         </div>
 
