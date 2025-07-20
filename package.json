@@ -1,0 +1,37 @@
+{
+  "name": "gorbadome-arcade",
+  "version": "1.0.0",
+  "description": "GorbaDome Arcade Platform - Web3 gaming on Gorbagana Chain",
+  "scripts": {
+    "build:webgl": "cd gorbadome-game && unity -quit -batchmode -projectPath . -buildTarget WebGL -buildPath ../builds/webgl",
+    "build:dev": "npm run build:webgl",
+    "deploy:devnet": "cd gorbadome-contracts && anchor deploy --provider.cluster devnet",
+    "deploy:mainnet": "cd gorbadome-contracts && anchor deploy --provider.cluster mainnet",
+    "test:contracts": "cd gorbadome-contracts && anchor test",
+    "start:dev": "serve builds/webgl -p 3000",
+    "setup:unity": "mkdir -p gorbadome-game && echo 'Unity project setup required'",
+    "clean": "rm -rf builds/ && rm -rf gorbadome-contracts/target/"
+  },
+  "keywords": [
+    "web3",
+    "gaming",
+    "solana",
+    "gorbagana",
+    "arcade",
+    "endless-runner",
+    "crypto",
+    "defi"
+  ],
+  "author": "GorbaDome Team",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gorbagana/gorbadome-arcade"
+  }
+} 

@@ -1,0 +1,38 @@
+{
+  "name": "gorbadome-contracts",
+  "version": "1.0.0",
+  "description": "GorbaDome smart contracts for Gorbagana Chain",
+  "scripts": {
+    "build": "anchor build",
+    "test": "anchor test",
+    "deploy:local": "anchor deploy --provider.cluster localnet",
+    "deploy:devnet": "anchor deploy --provider.cluster devnet",
+    "start:validator": "solana-test-validator",
+    "clean": "anchor clean"
+  },
+  "keywords": [
+    "solana",
+    "anchor",
+    "gorbagana",
+    "gaming",
+    "web3"
+  ],
+  "devDependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/spl-token": "^0.4.8",
+    "@solana/web3.js": "^1.95.2",
+    "@types/chai": "^4.3.20",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.10.0",
+    "chai": "^4.5.0",
+    "mocha": "^11.7.1",
+    "ts-mocha": "^10.1.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "gorbadome-arcade": "file:../.."
+  }
+}

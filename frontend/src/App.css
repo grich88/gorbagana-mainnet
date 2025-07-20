@@ -1,0 +1,346 @@
+.App {
+  text-align: center;
+  color: white;
+  min-height: 100vh;
+}
+
+.App-header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.App-header h1 {
+  font-size: 3rem;
+  margin: 0 0 10px 0;
+  background: linear-gradient(45deg, #FFD700, #FF6B6B, #4ECDC4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.App-header p {
+  font-size: 1.2rem;
+  margin: 10px 0 20px 0;
+  opacity: 0.9;
+}
+
+.App-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+/* Status Section */
+.status-section {
+  grid-column: 1 / -1;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-section h3 {
+  margin-top: 0;
+  color: #FFD700;
+}
+
+.status-section p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.status-section p.loading {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Game Controls */
+.game-controls {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.control-section {
+  margin-bottom: 30px;
+}
+
+.control-section:last-child {
+  margin-bottom: 0;
+}
+
+.control-section h3 {
+  color: #4ECDC4;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.input-group {
+  margin: 15px 0;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #FFD700;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #4ECDC4;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Action Buttons */
+.action-button {
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+  border: none;
+  color: white;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-button.init {
+  background: linear-gradient(45deg, #FFD700, #FF8C42);
+}
+
+.action-button.enter {
+  background: linear-gradient(45deg, #4ECDC4, #44A08D);
+}
+
+.action-button.submit {
+  background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+}
+
+/* Leaderboard */
+.leaderboard-section {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.leaderboard-section h3 {
+  color: #FFD700;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.leaderboard-entry {
+  display: grid;
+  grid-template-columns: 50px 1fr auto auto;
+  gap: 15px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.leaderboard-entry:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.leaderboard-entry.rank-1 {
+  border-color: #FFD700;
+  background: linear-gradient(45deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+}
+
+.leaderboard-entry.rank-2 {
+  border-color: #C0C0C0;
+  background: linear-gradient(45deg, rgba(192, 192, 192, 0.2), rgba(192, 192, 192, 0.1));
+}
+
+.leaderboard-entry.rank-3 {
+  border-color: #CD7F32;
+  background: linear-gradient(45deg, rgba(205, 127, 50, 0.2), rgba(205, 127, 50, 0.1));
+}
+
+.leaderboard-entry .rank {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.leaderboard-entry .player {
+  text-align: left;
+  font-weight: 600;
+}
+
+.leaderboard-entry .score {
+  font-weight: bold;
+  color: #4ECDC4;
+}
+
+.leaderboard-entry .wager {
+  font-weight: bold;
+  color: #FFD700;
+}
+
+/* Info Section */
+.info-section {
+  grid-column: 1 / -1;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-section h3 {
+  color: #4ECDC4;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: left;
+}
+
+.info-item strong {
+  color: #FFD700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.info-item span {
+  font-size: 1rem;
+}
+
+.info-item .monospace {
+  font-family: 'Courier New', monospace;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px;
+  border-radius: 6px;
+  word-break: break-all;
+  font-size: 0.85rem;
+}
+
+.info-item .active {
+  color: #4ECDC4;
+  font-weight: bold;
+}
+
+.info-item .inactive {
+  color: #FF6B6B;
+  font-weight: bold;
+}
+
+.info-item .entered {
+  color: #4ECDC4;
+  font-weight: bold;
+}
+
+.info-item .not-entered {
+  color: #FFD700;
+  font-weight: bold;
+}
+
+/* Wallet Button Overrides */
+.wallet-adapter-button {
+  background: linear-gradient(45deg, #667eea, #764ba2) !important;
+  border-radius: 50px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+.wallet-adapter-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .App-main {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0 15px;
+  }
+  
+  .App-header h1 {
+    font-size: 2rem;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .leaderboard-entry {
+    grid-template-columns: 40px 1fr;
+    gap: 10px;
+  }
+  
+  .leaderboard-entry .score,
+  .leaderboard-entry .wager {
+    grid-column: 2;
+    justify-self: end;
+  }
+} 
