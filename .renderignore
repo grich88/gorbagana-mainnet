@@ -1,0 +1,12 @@
+# Exclude from Render deployment
+node_modules/
+target/
+.git/
+.anchor/
+*.log
+.env*
+test_client/
+docs/
+My project/
+gorbadome-contracts/gorbadome/target/
+gorbadome-contracts/gorbadome/node_modules/ 
