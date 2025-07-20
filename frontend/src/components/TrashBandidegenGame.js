@@ -475,12 +475,12 @@ const TrashBandidegenGame = ({ onGameEnd, onScoreUpdate }) => {
     const ctx = canvas.getContext('2d');
     
     // Clear canvas with gradient background
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
     gradient.addColorStop(0, '#1a1a2e');
     gradient.addColorStop(0.5, '#16213e');
     gradient.addColorStop(1, '#0f3460');
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     
     // Draw lane lines
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
@@ -490,7 +490,7 @@ const TrashBandidegenGame = ({ onGameEnd, onScoreUpdate }) => {
       const x = 80 + i * 80;
       ctx.beginPath();
       ctx.moveTo(x, 0);
-      ctx.lineTo(x, canvas.height);
+      ctx.lineTo(x, ctx.canvas.height);
       ctx.stroke();
     }
     ctx.setLineDash([]);
@@ -650,7 +650,7 @@ const TrashBandidegenGame = ({ onGameEnd, onScoreUpdate }) => {
     ctx.fillStyle = '#FFD700';
     ctx.font = '14px Arial';
     ctx.textAlign = 'right';
-    ctx.fillText(`Speed: ${gameSpeed.toFixed(1)}x`, canvas.width - 10, 30);
+    ctx.fillText(`Speed: ${gameSpeed.toFixed(1)}x`, ctx.canvas.width - 10, 30);
     
     // Game state overlays
     if (gameState === 'menu') {
