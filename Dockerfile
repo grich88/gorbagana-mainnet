@@ -1,14 +1,14 @@
 # Build stage
-FROM node:18-alpine as build
+FROM node:18 as build
 
 # Set working directory
 WORKDIR /app
 
-# Copy frontend package files
+# Copy frontend package files first for better caching
 COPY frontend/package.json frontend/package-lock.json ./
 
-# Install dependencies (including devDependencies for build)
-RUN npm ci
+# Install dependencies with legacy peer deps flag to avoid conflicts
+RUN npm ci --legacy-peer-deps
 
 # Copy frontend source code
 COPY frontend/ ./
