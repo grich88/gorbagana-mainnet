@@ -5,10 +5,10 @@ FROM node:18-alpine as build
 WORKDIR /app
 
 # Copy frontend package files
-COPY frontend/package*.json ./
+COPY frontend/package.json frontend/package-lock.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including devDependencies for build)
+RUN npm ci
 
 # Copy frontend source code
 COPY frontend/ ./
