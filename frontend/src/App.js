@@ -345,13 +345,33 @@ function App() {
     }
   };
 
-  // Initialize game
+  // Initialize game with detailed debugging
   const initializeGame = async () => {
-    if (!publicKey) return;
+    if (!publicKey) {
+      console.log('❌ No wallet connected');
+      return;
+    }
     
     try {
       setLoading(true);
-      setStatus('Initializing game...');
+      setStatus('🚀 Initializing game...');
+      console.log('🎮 Starting game initialization...');
+      
+      // Check wallet balance first
+      const balance = await connection.getBalance(publicKey);
+      console.log('💰 Wallet balance:', balance / 1000000000, 'SOL');
+      
+      if (balance < 10000000) { // Less than 0.01 SOL
+        throw new Error('Insufficient SOL balance. Need at least 0.01 SOL for transaction fees.');
+      }
+      
+      console.log('📝 Creating transaction instruction...');
+      console.log('PDAs:', {
+        gameStatePDA: gameStatePDA.toString(),
+        leaderboardPDA: leaderboardPDA.toString(),
+        programId: PROGRAM_ID.toString(),
+        wallet: publicKey.toString()
+      });
       
       const instruction = new TransactionInstruction({
         keys: [
@@ -364,17 +384,42 @@ function App() {
         data: Buffer.from([0]) // Initialize instruction
       });
 
+      console.log('📋 Instruction created:', instruction);
+      
       const transaction = new Transaction().add(instruction);
+      console.log('📦 Transaction created, sending...');
+      
       const signature = await sendTransaction(transaction, connection);
+      console.log('✅ Transaction sent! Signature:', signature);
       
-      setStatus('✅ Game initialized! Transaction: ' + signature);
+      setStatus('🎉 Game initialized! Transaction: ' + signature);
       
-      // Wait a moment then refresh data
-      setTimeout(() => refreshData(), 2000);
+      // Wait for confirmation
+      console.log('⏳ Waiting for transaction confirmation...');
+      await connection.confirmTransaction(signature, 'confirmed');
+      console.log('✅ Transaction confirmed!');
+      
+      // Refresh data
+      setTimeout(() => {
+        console.log('🔄 Refreshing game data...');
+        refreshData();
+      }, 2000);
       
     } catch (error) {
-      console.error('Error initializing game:', error);
-      setStatus('❌ Error initializing game: ' + error.message);
+      console.error('❌ Error initializing game:', error);
+      console.log('Error details:', {
+        message: error.message,
+        code: error.code,
+        logs: error.logs
+      });
+      
+      if (error.message.includes('insufficient')) {
+        setStatus('❌ Insufficient SOL balance. Please add some SOL to your wallet.');
+      } else if (error.message.includes('User rejected')) {
+        setStatus('❌ Transaction cancelled by user.');
+      } else {
+        setStatus('❌ Error initializing game: ' + error.message);
+      }
     } finally {
       setLoading(false);
     }
